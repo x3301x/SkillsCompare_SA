@@ -1,4 +1,4 @@
-"""SkillsCompare SA - prototype. Run: python app.py  (Flask + SQLite, no other deps).
+"""SkillsCompare SA. Run: python app.py  (Flask + SQLite, no other deps).
 Routes and business rules live here; seed data is in seed.py; markup in templates/; styling in static/css/."""
 import os, sqlite3, csv, io, secrets, datetime as dt
 from urllib.parse import urlencode
@@ -191,11 +191,13 @@ def thanks(eid):
     if not e: abort(404)
     return render_template('thanks.html', e=e)
 
+
+# ---------------------------------------------------------------- auth
 @app.route('/guide')
 def guide():
     return render_template('guide.html')
 
-# ---------------------------------------------------------------- auth
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':

@@ -47,7 +47,6 @@
         </div>
       </fieldset>
       <p style="margin:var(--s-5) 0 0"><button class="btn btn--block" type="submit">Search programmes {{ icon('arrow') }}</button></p>
-      <p class="sheet__sample">Evaluating this demo? <a href="{{ url_for('search') }}?{{ sample_qs }}">Run the sample journey</a>: Johannesburg employer, project management, 25 learners, onsite or blended.</p>
     </form>
   </div>
 </section>
@@ -73,7 +72,6 @@
     <div class="extract">
       <div class="extract__head">
         <h3>Extract: project management · Johannesburg · 25 learners</h3>
-        <p>Fictional data. Prices are indicative and for the demonstration only.</p>
       </div>
       <ul class="register">
         {% for c in sample %}

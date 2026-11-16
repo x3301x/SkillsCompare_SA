@@ -33,4 +33,4 @@
 <h2>Audit trail</h2>
 <div class="scroll"><table><tr><th>When</th><th>Actor</th><th>Action</th><th>Target</th><th>Detail</th></tr>{% for a in aud %}<tr><td>{{a.at}}</td><td>{{a.actor}}</td><td>{{a.action}}</td><td>{{a.target}}</td><td>{{a.detail}}</td></tr>{% endfor %}</table>
 </div>
-<h2>Email outbox (stub)</h2>{% for m in mails %}<p class="mut">{{m.at}} → {{m.to_email|mask}}: <b>{{m.subject}}</b></p>{% endfor %}{% endblock %}
+<h2>Email outbox</h2>{% for m in mails %}<p class="mut">{{m.at}} → {{m.to_email|mask}}: <b>{{m.subject}}</b></p>{% endfor %}{% endblock %}

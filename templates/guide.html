@@ -1,8 +1,24 @@
 {% extends 'base.html' %}
-{% block title %}How to use this system · SkillsCompare SA{% endblock %}
+{% block title %}How it works · SkillsCompare SA{% endblock %}
 {% block c %}
-<div class="page-head"><p class="eyebrow">Evaluator guide</p><h1>How to use this system</h1></div>
-<p class="note">The full guided demo script, role guides and tender requirements map are added in stage 4. Demo accounts are below so you can already sign in. The password for all of them is <span class="mono">demo1234</span>.</p>
-<table><caption>Demo accounts (fictional)</caption><thead><tr><th>Role</th><th>Email</th></tr></thead><tbody>
-<tr><td>Employer</td><td class="mono">employer@demo.co.za</td></tr><tr><td>Provider</td><td class="mono">provider@demo.co.za</td></tr><tr><td>Admin</td><td class="mono">admin@demo.co.za</td></tr></tbody></table>
+<div class="page-head"><p class="eyebrow">Help</p><h1>How SkillsCompare SA works</h1></div>
+
+<h2>If you are buying training</h2>
+<ol class="steps">
+  <li><div><h3>Search</h3><p>Enter the skill you need, how many learners, where they are and whether you want onsite, blended or online delivery. Use the filters to narrow by price, duration, provider type or verified credentials.</p></div></li>
+  <li><div><h3>Read the results</h3><p>Every programme shows the same fields: price and what it is based on, duration, format, location and capacity. Open “Why this match” to see exactly which rules produced the order. Programmes without a published price show Request Quote.</p></div></li>
+  <li><div><h3>Compare up to three</h3><p>Select “Add to compare” on any result. The comparison page puts the programmes side by side and works out an estimated total for your number of learners.</p></div></li>
+  <li><div><h3>Send an enquiry</h3><p>Choose a programme, add your dates, credential requirements and budget, then give your contact details and consent. Only that provider receives them and they reply to you directly. Contracting, invoicing and payment happen between you and the provider.</p></div></li>
+</ol>
+
+<h2>If you are a training provider</h2>
+<ol class="steps">
+  <li><div><h3>Register</h3><p>Create a provider account with your organisation’s details. New providers are approved by an administrator before anything goes live.</p></div></li>
+  <li><div><h3>List your programmes</h3><p>Add each programme from your dashboard with its price basis, duration, format, location and capacity. New listings are reviewed before they appear in search.</p></div></li>
+  <li><div><h3>Submit accreditation evidence</h3><p>Upload proof of any accreditation you hold. It shows as “Under review” until an administrator checks it and records the authority, method and date.</p></div></li>
+  <li><div><h3>Respond to leads</h3><p>Enquiries appear in your dashboard with the learner’s requirements and the consent they gave. Update each lead’s status as you follow up.</p></div></li>
+</ol>
+
+<h2>What the credential labels mean</h2>
+<p><strong>Verified by SkillsCompare</strong> means an administrator checked it and recorded the authority, method and date. <strong>Under review</strong> means evidence has been submitted but not yet checked. <strong>Unverified claim</strong> means the provider says it holds the credential and no check has been recorded. <strong>Non-accredited short course</strong> means no accreditation is claimed.</p>
 {% endblock %}

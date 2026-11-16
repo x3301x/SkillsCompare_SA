@@ -89,7 +89,7 @@
           {% if sort != 'price' %}
           <details class="why-d"><summary>Why this match <span class="mono">· score {{ c.score }}</span></summary>
             <ul class="why">{% for w in c.why %}<li>{{ w }}</li>{% endfor %}{% for w in c.flags if not w.startswith('Max group') %}<li class="why__flag">{{ w }}</li>{% endfor %}</ul>
-            <p class="mut">Rule-based and explainable: every point comes from a listed rule. Sponsored placement does not exist in this prototype.</p>
+            <p class="mut">Rule-based and explainable: every point comes from a listed rule. There is no sponsored placement.</p>
           </details>
           {% endif %}
         </div>
