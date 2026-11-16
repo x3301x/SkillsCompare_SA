@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import badges, seals, price, seal %}
+{% block c %}
+<h1>Enquiry sent</h1>
+<div class="card"><p>Reference <b>#{{e.id}}</b>: {{e.title}}. Your details were shared with <b>{{e.org}}</b> only, based on your consent recorded {{e.consent_at}}. They will contact you directly.</p>
+<a class="btn" href="/">Back to search</a></div>{% endblock %}

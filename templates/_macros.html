@@ -1,0 +1,41 @@
+{#- Shared building blocks. Import with: {% from '_macros.html' import seal, seals, price %} -#}
+
+{#- Icons: 24px grid, 2px stroke, currentColor. Decorative: always aria-hidden. -#}
+{% macro icon(name) -%}
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true" focusable="false">
+{%- if name == 'verified' %}<path d="M4 12.5l5 5L20 6.5"/>
+{%- elif name == 'pending' %}<circle cx="12" cy="12" r="8.5"/><path d="M12 7v5.5l3.5 2"/>
+{%- elif name == 'unverified' %}<path d="M9 9.2a3 3 0 1 1 4.6 2.5c-1 .6-1.6 1.2-1.6 2.3"/><path d="M12 18v.5"/>
+{%- elif name == 'none' %}<path d="M6 12h12"/>
+{%- elif name == 'arrow' %}<path d="M4 12h15M13 6l6 6-6 6"/>
+{%- elif name == 'menu' %}<path d="M3 6h18M3 12h18M3 18h18"/>
+{%- elif name == 'close' %}<path d="M5 5l14 14M19 5L5 19"/>
+{%- elif name == 'tick' %}<path d="M4 12.5l5 5L20 6.5"/>
+{%- elif name == 'filter' %}<path d="M3 5h18M6 12h12M10 19h4"/>
+{%- endif -%}
+</svg>
+{%- endmacro %}
+
+{#- Credential seal. k = {state, label, kind}. State is shown by shape + icon + words. -#}
+{% macro seal(k, lg=false) -%}
+<span class="seal seal--{{ k.state }}{{ ' seal--lg' if lg }}"><span class="seal__icon">{{ icon(k.state) }}</span><span class="seal__text"><span class="seal__state">{{ k.label }}</span><span class="seal__kind">{{ k.kind }}</span></span></span>
+{%- endmacro %}
+
+{#- All credentials for a programme; "Non-accredited short course" when none is on record. -#}
+{% macro seals(cs, lg=false) -%}
+<span class="seals">{% for k in cs %}{{ seal(k, lg) }}{% else %}{{ seal({'state': 'none', 'label': 'Non-accredited short course', 'kind': 'No accreditation claimed'}, lg) }}{% endfor %}</span>
+{%- endmacro %}
+{% macro badges(cs) %}{{ seals(cs) }}{% endmacro %}
+
+{#- Price. Quote-only listings never show a figure. c.cost comes from cost() in app.py. -#}
+{% macro price(c) -%}
+{% if c.cost.quote -%}
+<span class="price price--quote"><span class="price__fig">Request Quote</span><span class="price__basis">{{ c.cost.basis }}</span></span>
+{%- else -%}
+{%- set parts = c.cost.line.split(' per ') -%}
+<span class="price"><span class="price__fig">{{ parts[0] }} <small>per {{ parts[1] }}</small></span><span class="price__basis">{{ c.cost.basis }}</span></span>
+{%- endif %}
+{%- endmacro %}
+
+{#- Logo mark (inline so it inherits the colour tokens; legible at 24px and 120px). -#}
+{% macro logo_mark() %}{% include '_mark.svg.html' %}{% endmacro %}

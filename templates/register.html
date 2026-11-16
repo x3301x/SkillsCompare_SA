@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import badges, seals, price, seal %}
+{% block c %}
+<h1>Register</h1>
+<form method="post" class="card" style="max-width:520px">{{csrf()}}<label for="role">I am a</label><select id="role" name="role"><option value="employer">Employer</option><option value="provider" {{'selected' if f.role=='provider'}}>Training provider</option></select>
+<label for="org">Company name</label><input id="org" name="org" required value="{{f.org}}"><label for="name">Your name (authorised user)</label><input id="name" name="name" required value="{{f.name}}"><label for="email">Email</label><input id="email" name="email" type="email" required value="{{f.email}}">
+<label for="password">Password (8+ characters)</label><input id="password" name="password" type="password" minlength="8" required><label for="city">City</label><input id="city" name="city" value="{{f.city}}"><label for="type">Provider type (providers only)</label><select id="type" name="type">{% for p in ['private','qcto','university','tvet','exec-ed'] %}<option>{{p}}</option>{% endfor %}</select>
+<p class="mut">We collect only what we need. Providers must be approved by an admin before listing.</p>
+<button class="btn">Create account</button></form>{% endblock %}

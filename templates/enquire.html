@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import badges, seals, price, seal %}
+{% block c %}
+<h1>Enquire: {{c.title}}</h1>
+<p class="mut">{{c.org}}</p>
+<form method="post" class="card">{{csrf()}}
+<div class="grid g2"><div><label for="learners">Number of learners</label><input id="learners" name="learners" type="number" min="1" value="{{f.learners}}"></div>
+<div><label for="dates">Preferred dates</label><input id="dates" name="dates" value="{{f.dates}}"></div>
+<div><label for="req_cred">Credential requirements</label><input id="req_cred" name="req_cred" value="{{f.req_cred}}" placeholder="e.g. QCTO-accredited"></div>
+<div><label for="budget">Budget per learner (R, optional)</label><input id="budget" name="budget" type="number" value="{{f.budget}}"></div>
+</div>
+<label for="message">Message</label><textarea id="message" name="message" rows="3">{{f.message}}</textarea>
+<h2>Your contact details</h2>
+<p class="mut">Only what the provider needs to reply. Shared with {{c.org}} only.</p>
+<label for="name">Name</label><input id="name" name="name" required value="{{f.name or d.name}}"><label for="email">Email</label><input id="email" name="email" type="email" required value="{{f.email or d.email}}"><label for="phone">Phone (optional)</label><input id="phone" name="phone" type="tel" value="{{f.phone}}">
+<label style="font-weight:400;margin:14px 0"><input type="checkbox" name="consent" required> {{cs}}</label><button class="btn">Send enquiry</button></form>{% endblock %}

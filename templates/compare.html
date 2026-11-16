@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import seals, price, icon %}
+{% block title %}Compare programmes · SkillsCompare SA{% endblock %}
+
+{#- One cell renderer shared by the desktop table and the mobile stacked view. -#}
+{% macro cell(key, c, low) -%}
+{%- if key == 'price' -%}
+  {{ price(c) }}
+{%- elif key == 'basis' -%}
+  {%- if c.cost.quote %}<span class="tag tag--quote">Quote only</span> <span class="mut">No confirmed price</span>{% else %}<strong>Per {{ c.price_unit }}</strong>{% if c.price_unit == 'cohort' %}<span class="mut"> · whole group, up to {{ c.capacity }}</span>{% endif %}{% endif -%}
+{%- elif key == 'total' -%}
+  {%- if c.cost.quote %}<span class="mut">Not available until quoted</span>
+  {%- else %}<span class="fig{{ ' is-low' if low and c.cost.total == low.total }}">R{{ '{:,.0f}'.format(c.cost.total) }}</span>{% if low and c.cost.total == low.total %}<span class="tag tag--low">Lowest published</span>{% endif %}{% endif -%}
+{%- elif key == 'per' -%}
+  {%- if c.cost.quote %}<span class="mut">Not available until quoted</span>
+  {%- else %}<span class="fig{{ ' is-low' if low and c.cost.per == low.per }}">R{{ '{:,.0f}'.format(c.cost.per) }}</span>{% if low and c.cost.per == low.per %}<span class="tag tag--low">Lowest published</span>{% endif %}{% if c.price_unit == 'cohort' %}<span class="mut"> derived from the cohort price</span>{% endif %}{% endif -%}
+{%- elif key == 'days' -%}{{ c.days }} day{{ '' if c.days == 1 else 's' }}
+{%- elif key == 'mode' -%}{{ c.mode|capitalize }}
+{%- elif key == 'loc' -%}{{ c.city }}, {{ c.province }}
+{%- elif key == 'cap' -%}
+  <span class="mono">{{ c.capacity }}</span>{% if c.capacity < n %}<span class="flag">Below {{ n }} learners: may need multiple intakes</span>{% endif %}
+{%- elif key == 'ptype' -%}{{ c.otype|ptype }}
+{%- elif key == 'outcomes' -%}{{ c.outcomes }}
+{%- elif key == 'creds' -%}{{ seals(c.creds) }}
+{%- endif -%}
+{%- endmacro %}
+
+{% set rows = [('price', 'Published price'), ('basis', 'Pricing basis'), ('total', 'Estimated total for ' ~ n ~ ' learners'), ('per', 'Equivalent per learner'), ('days', 'Duration'), ('mode', 'Delivery'), ('loc', 'Location'), ('cap', 'Capacity'), ('ptype', 'Provider type'), ('outcomes', 'Programme outcomes'), ('creds', 'Credential status')] %}
+{#- Lowest published figures: only meaningful when two or more programmes carry a price. -#}
+{% set priced = items|rejectattr('cost.quote')|list %}
+{% set low = {'total': priced|map(attribute='cost.total')|min, 'per': priced|map(attribute='cost.per')|min} if priced|length >= 2 else none %}
+{% set letters = ['A', 'B', 'C'] %}
+
+{% block c %}
+<div class="page-head"><p class="eyebrow">Compare</p><h1>Compare programmes</h1></div>
+
+{% if items|length < 1 %}
+<div class="empty">
+  <p class="eyebrow">Nothing selected</p>
+  <h2>Choose up to three programmes to compare</h2>
+  <p>Use “Add to compare” on any search result. You can then see price basis, duration, format, capacity and credential status side by side.</p>
+  <p><a class="btn" href="{{ url_for('search') }}">Search programmes</a></p>
+</div>
+{% else %}
+<form class="cmp-n" method="get" action="{{ url_for('compare') }}">
+  <label for="l">Learners, for cost estimates</label>
+  <div class="cmp-n__row"><input id="l" name="learners" type="number" inputmode="numeric" min="1" value="{{ n }}"><button class="btn sec" type="submit">Update</button></div>
+</form>
+<p class="note">Providers price differently: some <strong>per learner</strong>, some <strong>per cohort</strong>. The estimate rows convert both to the same {{ n }}-learner footing. The highlight marks the lowest <em>published</em> figure only. Lowest price is not the same as best fit, and quote-only programmes cannot be priced until you enquire.{% if items|length < 2 %} Add at least one more programme to compare.{% endif %}</p>
+
+{#- ===== Desktop / tablet: ruled table, sticky row labels ===== #}
+<div class="cmp-table scroll" tabindex="0" role="region" aria-label="Side-by-side comparison. Scroll sideways if needed.">
+  <table>
+    <caption class="vh">Side-by-side comparison of {{ items|length }} programmes</caption>
+    <thead><tr><td class="corner"></td>
+      {% for c in items %}<th scope="col"><span class="pl mono">{{ letters[loop.index0] }}</span><a href="{{ url_for('course', cid=c.id, learners=n) }}">{{ c.title }}</a><span class="mut">{{ c.org }}</span></th>{% endfor %}
+    </tr></thead>
+    <tbody>
+      {% for key, label in rows %}
+      <tr><th scope="row">{{ label }}</th>{% for c in items %}<td class="{{ 'is-low' if low and key in ('total', 'per') and not c.cost.quote and c.cost[key] == low[key] }}">{{ cell(key, c, low) }}</td>{% endfor %}</tr>
+      {% endfor %}
+      <tr class="actions"><th scope="row"><span class="vh">Actions</span></th>
+        {% for c in items %}<td><a class="btn sm" href="{{ url_for('enquire', cid=c.id) }}">Enquire</a>
+          <form method="post" action="{{ url_for('cmp_rm', cid=c.id) }}">{{ csrf() }}<button class="btn sec sm" type="submit">Remove<span class="vh"> {{ c.title }}</span></button></form></td>{% endfor %}
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+{#- ===== Phone: legend, then one block per attribute so values sit next to each other ===== #}
+<div class="cmp-stack">
+  <ol class="legend">
+    {% for c in items %}
+    <li><span class="pl mono">{{ letters[loop.index0] }}</span>
+      <div><a class="legend__t" href="{{ url_for('course', cid=c.id, learners=n) }}">{{ c.title }}</a><span class="mut">{{ c.org }}</span>
+        <div class="legend__a"><a class="btn sm" href="{{ url_for('enquire', cid=c.id) }}">Enquire</a>
+          <form method="post" action="{{ url_for('cmp_rm', cid=c.id) }}">{{ csrf() }}<button class="btn sec sm" type="submit">Remove<span class="vh"> {{ c.title }}</span></button></form></div></div></li>
+    {% endfor %}
+  </ol>
+  {% for key, label in rows %}
+  <section class="attr" aria-labelledby="a-{{ key }}">
+    <h2 id="a-{{ key }}">{{ label }}</h2>
+    <ul>{% for c in items %}<li class="{{ 'is-low' if low and key in ('total', 'per') and not c.cost.quote and c.cost[key] == low[key] }}"><span class="pl mono" aria-label="Programme {{ letters[loop.index0] }}">{{ letters[loop.index0] }}</span><div>{{ cell(key, c, low) }}</div></li>{% endfor %}</ul>
+  </section>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

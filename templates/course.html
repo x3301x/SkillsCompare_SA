@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import badges, seals, price, seal %}
+{% block c %}
+<h1>{{c.title}}</h1>
+<div class="mut">{{c.org}} · {{c.otype|upper}} · {{c.cat}}</div>
+<div class="card">{{price({'cost':cost})}}<p>{{c.summary}}</p>
+<p><b>Outcomes:</b> {{c.outcomes}}</p>
+<p class="mut">{{c.days}} days · {{c.mode|capitalize}} · {{c.city}}, {{c.province}} · capacity {{c.capacity}} learners</p>
+</div>
+<h2>Credential status</h2>
+<div class="card scroll"><p class="note">"Verified" appears only after a SkillsCompare admin has checked and recorded the evidence. Provider claims and uploads are shown as unverified or under review.</p>
+{% if cs %}<table><tr><th>Type</th><th>Status</th><th>Issuing authority</th><th>Scope</th><th>Method</th><th>Checked</th><th>Expires</th></tr>{% for k in cs %}<tr><td>{{k.kind}}</td><td><span class="b {{k.state}}">{{k.label}}</span></td><td>{{k.row.authority}}</td><td>{{k.row.scope}}</td><td>{{k.row.method or '-'}}</td><td>{{k.row.checked_on or '-'}}</td><td>{{k.row.expires_on or '-'}}</td></tr>{% endfor %}</table>{% else %}<span class="b none">Non-accredited short course</span> No accreditation is claimed.{% endif %}</div>
+<form method="post" action="/compare/add/{{c.id}}" style="display:inline">{{csrf()}}<button class="btn sec">+ Compare</button></form> <a class="btn" href="/enquire/{{c.id}}">Enquire</a>{% endblock %}

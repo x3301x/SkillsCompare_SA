@@ -1,0 +1,90 @@
+{% from '_macros.html' import logo_mark, icon -%}
+<!doctype html>
+<html lang="en-ZA" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}SkillsCompare SA: compare training providers{% endblock %}</title>
+<meta name="description" content="{% block desc %}One search. Multiple training providers. Comparable options. Better-informed purchasing decisions. A prototype with fictional data.{% endblock %}">
+<meta name="theme-color" content="#12181B">
+<link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='svg/mark.svg') }}">
+<link rel="preload" href="{{ url_for('static', filename='fonts/newsreader-latin-600-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{{ url_for('static', filename='fonts/ibm-plex-sans-latin-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/tokens.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}">
+<script>document.documentElement.className = 'js';</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+
+<div class="proto-strip" role="note">
+  <div class="wrap"><span>Prototype · fictional data</span><span>Not a training provider, payment processor or LMS</span></div>
+</div>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="{{ url_for('home') }}" aria-label="SkillsCompare SA, home">{{ logo_mark() }}<span class="brand__word">SkillsCompare<span class="brand__sa">SA</span></span></a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">{{ icon('menu') }}<span>Menu</span></button>
+    {%- set p = request.path %}
+    <nav class="site-nav" id="site-nav" aria-label="Main">
+      <ul>
+        <li><a href="{{ url_for('search') }}" {% if p.startswith('/search') or p.startswith('/course') or p.startswith('/enquire') %}aria-current="page"{% endif %}>Search</a></li>
+        <li><a href="{{ url_for('compare') }}" {% if p.startswith('/compare') %}aria-current="page"{% endif %}>Compare{% if cmpn %}<span class="count" aria-label="{{ cmpn }} selected">{{ cmpn }}</span>{% endif %}</a></li>
+        <li><a href="{{ url_for('guide') }}" {% if p.startswith('/guide') %}aria-current="page"{% endif %}>How to use this</a></li>
+        {% if role == 'provider' %}<li><a href="{{ url_for('provider') }}" {% if p.startswith('/provider') %}aria-current="page"{% endif %}>Provider dashboard</a></li>{% endif %}
+        {% if role == 'admin' %}<li><a href="{{ url_for('admin') }}" {% if p.startswith('/admin') %}aria-current="page"{% endif %}>Admin</a></li>{% endif %}
+        {% if user %}
+        <li><form method="post" action="{{ url_for('logout') }}">{{ csrf() }}<button type="submit">Log out</button></form></li>
+        {% else %}
+        <li><a href="{{ url_for('login') }}" {% if p == '/login' %}aria-current="page"{% endif %}>Log in</a></li>
+        <li><a class="nav-cta" href="{{ url_for('register') }}" {% if p == '/register' %}aria-current="page"{% endif %}>Register</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+  <div class="wrap page-flashes" aria-live="polite" aria-atomic="false">
+    {%- with msgs = get_flashed_messages(with_categories=true) %}{% if msgs %}<div class="flashes">
+      {%- for c, m in msgs %}<div class="flash {{ c }}"{% if c == 'err' %} role="alert"{% endif %}>{{ m }}</div>{% endfor -%}
+    </div>{% endif %}{% endwith -%}
+  </div>
+  {% block full %}<div class="wrap section--tight">{% block c %}{% endblock %}</div>{% endblock %}
+</main>
+
+{% if cmpn and not request.path.startswith('/compare') %}
+<aside class="tray" aria-label="Comparison selection"><div class="wrap"><p><span class="mono">{{ cmpn }} of 3</span> selected{% if cmpn < 2 %} · add one more to compare{% endif %}</p><a class="btn sm" href="{{ url_for('compare') }}">Compare{% if cmpn >= 2 %} {{ cmpn }}{% endif %}</a></div></aside>
+{% endif %}
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <a class="brand" href="{{ url_for('home') }}" aria-label="SkillsCompare SA, home">{{ logo_mark() }}<span class="brand__word">SkillsCompare<span class="brand__sa">SA</span></span></a>
+        <p class="disclaimer"><strong>This is a prototype with fictional data.</strong> SkillsCompare SA is a search, compare and lead-generation service. It is not a training provider, payment processor or learning management system. Providers set their own prices, contracts and delivery.</p>
+      </div>
+      <nav aria-label="Footer: explore">
+        <h2>Explore</h2>
+        <ul>
+          <li><a href="{{ url_for('search') }}">Search programmes</a></li>
+          <li><a href="{{ url_for('compare') }}">Compare</a></li>
+          <li><a href="{{ url_for('guide') }}">How to use this system</a></li>
+        </ul>
+      </nav>
+      <nav aria-label="Footer: accounts">
+        <h2>Accounts</h2>
+        <ul>
+          <li><a href="{{ url_for('register', role='provider') }}">List as a provider</a></li>
+          <li><a href="{{ url_for('login') }}">Log in</a></li>
+          <li><a href="mailto:privacy@skillscompare.example">privacy@skillscompare.example</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="footer-base">Demonstration build · all organisations, courses and people are fictional · enquiry emails are stubbed and never sent</div>
+  </div>
+</footer>
+<script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</body>
+</html>

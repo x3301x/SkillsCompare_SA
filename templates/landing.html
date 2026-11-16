@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import seal, seals, price, icon %}
+{% block title %}SkillsCompare SA: one search, comparable training options{% endblock %}
+
+{% block full %}
+{#- ============ HERO ============ -#}
+<section class="hero" aria-labelledby="hero-title">
+  <div class="wrap hero__grid">
+    <div>
+      <p class="eyebrow eyebrow--signal">Training register for South African employers</p>
+      <h1 class="hero__title" id="hero-title"><span class="l1">One search.</span> <span class="l2">Multiple training providers.</span> <span class="l3">Comparable options.</span> <span class="l4">Better-informed purchasing decisions.</span></h1>
+      <p class="hero__lede">Find programmes, see price, duration, format, location and capacity in the same fields, check what each credential really means, then enquire with your consent.</p>
+      <ul class="hero__facts" aria-label="What this service is and is not">
+        <li><span class="k">It is</span><span>A search, compare and enquiry service.</span></li>
+        <li><span class="k">It is not</span><span>A training provider, payment processor or LMS.</span></li>
+        <li><span class="k">Prices</span><span>Shown only where a provider supplies one. Otherwise: Request Quote.</span></li>
+        <li><span class="k">Verified</span><span>Appears only after an administrator records the check.</span></li>
+      </ul>
+    </div>
+
+    <form class="sheet" action="{{ url_for('search') }}" method="get" role="search" aria-labelledby="sheet-title">
+      <div class="sheet__head">
+        <h2 class="sheet__title" id="sheet-title">Describe your training need</h2>
+        <ol class="trail" aria-label="The three steps"><li aria-current="step">Search</li><li>Compare</li><li>Enquire</li></ol>
+      </div>
+      <label for="q">What training do you need?</label>
+      <input class="q-input" id="q" name="q" type="search" placeholder="e.g. project management" autocomplete="off" enterkeyhint="search">
+      <div class="sheet__row">
+        <div>
+          <label for="learners">Learners</label>
+          <input id="learners" name="learners" type="number" inputmode="numeric" min="1" max="5000" placeholder="25">
+        </div>
+        <div>
+          <label for="city">City</label>
+          <select id="city" name="city">
+            <option value="">Any city</option>
+            {% for c in cities %}<option>{{ c }}</option>{% endfor %}
+          </select>
+        </div>
+      </div>
+      <fieldset>
+        <legend>Delivery format <span class="hint" style="display:inline">(choose any)</span></legend>
+        <div class="chips">
+          {% for m, lbl in [('onsite', 'Onsite'), ('blended', 'Blended'), ('online', 'Online')] %}
+          <label class="chip"><input type="checkbox" name="mode" value="{{ m }}"><span>{{ lbl }}</span></label>
+          {% endfor %}
+        </div>
+      </fieldset>
+      <p style="margin:var(--s-5) 0 0"><button class="btn btn--block" type="submit">Search programmes {{ icon('arrow') }}</button></p>
+      <p class="sheet__sample">Evaluating this demo? <a href="{{ url_for('search') }}?{{ sample_qs }}">Run the sample journey</a>: Johannesburg employer, project management, 25 learners, onsite or blended.</p>
+    </form>
+  </div>
+</section>
+
+{#- ============ CATEGORY INDEX ============ -#}
+<nav class="cat-index" aria-label="Browse by category">
+  <div class="wrap">
+    <p class="eyebrow">Browse the register</p>
+    {% for c in cats %}<a href="{{ url_for('search', cat=c.id) }}"><span class="n">{{ catn.get(c.id, 0) }}</span>{{ c.name }}</a>{% endfor %}
+  </div>
+</nav>
+
+{#- ============ SAMPLE EXTRACT ============ -#}
+<section class="section" aria-labelledby="sample-title">
+  <div class="wrap sample-wrap">
+    <div>
+      <p class="eyebrow">Sample journey</p>
+      <h2 id="sample-title">What a real search looks like</h2>
+      <p>A Johannesburg employer needs project management training for 25 learners, onsite or blended. {{ sample_total }} programmes match: {{ sample_priced }} publish a price and {{ sample_total - sample_priced }} ask you to request a quote.</p>
+      <p class="mut">Each row carries its credential seal and the basis of its price. The order is by match to the search, not by quality or price.</p>
+      <p><a class="link-arrow" href="{{ url_for('search') }}?{{ sample_qs }}">See all {{ sample_total }} results {{ icon('arrow') }}</a></p>
+    </div>
+    <div class="extract">
+      <div class="extract__head">
+        <h3>Extract: project management · Johannesburg · 25 learners</h3>
+        <p>Fictional data. Prices are indicative and for the demonstration only.</p>
+      </div>
+      <ul class="register">
+        {% for c in sample %}
+        <li>
+          <div>
+            <h4 class="extract__title"><a href="{{ url_for('course', cid=c.id, learners=25) }}">{{ c.title }}</a></h4>
+            <p class="extract__org">{{ c.org }}</p>
+            <p class="extract__org mono">{{ c.days }} day{{ '' if c.days == 1 else 's' }} · {{ c.mode|capitalize }} · {{ c.city }} · max {{ c.capacity }}</p>
+          </div>
+          <div>{{ seals(c.creds) }}</div>
+          <div>{{ price(c) }}</div>
+        </li>
+        {% endfor %}
+      </ul>
+      <div class="extract__foot"><p>Request Quote means no price has been confirmed. Compare up to three programmes before you enquire.</p></div>
+    </div>
+  </div>
+</section>
+
+{#- ============ HOW IT WORKS ============ -#}
+<section class="section band-sunken" aria-labelledby="how-title">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">How it works</p>
+      <h2 id="how-title">Four steps from a need to a reply</h2>
+    </div>
+    <ol class="steps">
+      <li><div><h3>Describe the need</h3><p>Enter the skill you need, how many learners, where, and how you want it delivered. Add dates, credential requirements and budget when you enquire.</p></div></li>
+      <li><div><h3>Compare like with like</h3><p>Results use the same fields for every programme. A price appears only where the provider supplies one; otherwise you see Request Quote.</p></div></li>
+      <li><div><h3>Choose up to three, then enquire</h3><p>Put up to three programmes side by side, including whether each price is per learner or per cohort. Then send a consent-based enquiry to the provider you select.</p></div></li>
+      <li><div><h3>The provider replies to you</h3><p>Only that provider receives your contact details. They contact you and handle negotiation, contracting, invoicing and delivery. SkillsCompare SA takes no payment.</p></div></li>
+    </ol>
+  </div>
+</section>
+
+{#- ============ TRUST ============ -#}
+<section class="section" aria-labelledby="trust-title">
+  <div class="wrap trust-grid">
+    <div>
+      <p class="eyebrow">Credential checks</p>
+      <h2 class="pullrule" id="trust-title">“Verified” is a record, <em>not a badge.</em></h2>
+      <p>A SkillsCompare administrator must record the issuing authority, the method and the date checked before any credential shows as verified. A certificate uploaded by a provider is evidence to review. It is never proof by itself.</p>
+      <p class="note"><strong>Price and quality are separate.</strong> Sorting by lowest published price is a convenience. It does not rank quality or suitability, and quote-only programmes have no confirmed price.</p>
+    </div>
+    <div>
+      <h3 class="label-caps" style="margin-bottom:var(--s-3)">The four states you will see</h3>
+      <ul class="states">
+        <li>{{ seal({'state': 'verified', 'label': 'Verified by SkillsCompare', 'kind': 'Admin check on record'}) }}<p>An administrator checked the register or document and recorded the authority, method and date. You can read all three on the programme page.</p></li>
+        <li>{{ seal({'state': 'pending', 'label': 'Under review', 'kind': 'Evidence submitted'}) }}<p>Evidence has been submitted and is waiting for an administrator. Treat it as unconfirmed.</p></li>
+        <li>{{ seal({'state': 'unverified', 'label': 'Unverified claim', 'kind': 'Provider-stated'}) }}<p>The provider says it holds this credential. No check has been recorded.</p></li>
+        <li>{{ seal({'state': 'none', 'label': 'Non-accredited short course', 'kind': 'No accreditation claimed'}) }}<p>The provider makes no accreditation claim. We show that plainly rather than hide it.</p></li>
+      </ul>
+      <h3 class="label-caps" style="margin:var(--s-5) 0 0">Four kinds of recognition, kept apart</h3>
+      <dl class="kinds">
+        <div><dt>Provider accreditation</dt><dd>The organisation is approved by a body such as QCTO or a SETA.</dd></div>
+        <div><dt>Programme accreditation</dt><dd>This specific qualification is accredited, not just the provider.</dd></div>
+        <div><dt>Institutional status</dt><dd>Registration as a university, TVET college or private college.</dd></div>
+        <div><dt>Professional recognition</dt><dd>Facilitators or content recognised by a professional body. It says nothing about the organisation’s accreditation.</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+{#- ============ FOR PROVIDERS ============ -#}
+<section class="section band-dark on-dark" aria-labelledby="prov-title">
+  <div class="wrap prov-grid">
+    <div>
+      <p class="eyebrow">For training providers</p>
+      <h2 id="prov-title">List your programmes. Receive consented enquiries.</h2>
+      <p style="color:#E6E8E4">Reach employers who are already comparing options. Basic listings are free to start in the proposed model; paid tools are to be tested with real providers.</p>
+      <div class="btn-row">
+        <a class="btn btn--on-dark" href="{{ url_for('register', role='provider') }}">Register as a provider</a>
+        <a class="btn btn--ghost" href="{{ url_for('login') }}">Provider log in</a>
+      </div>
+    </div>
+    <ul class="prov-list">
+      <li>{{ icon('tick') }}<span>Publish a price, or choose Request Quote. Set duration, format, location and capacity.</span></li>
+      <li>{{ icon('tick') }}<span>Upload accreditation evidence. An administrator checks it before any “Verified” mark appears.</span></li>
+      <li>{{ icon('tick') }}<span>See each enquiry in your secure dashboard and track it as new, contacted, quoted or closed.</span></li>
+      <li>{{ icon('tick') }}<span>Keep quotes, contracts, invoicing and delivery between you and the employer.</span></li>
+    </ul>
+  </div>
+</section>
+{% endblock %}

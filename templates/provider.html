@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import badges, seals, price, seal %}
+{% block c %}
+<h1>{{o.name}}</h1>{% if o.status!='approved' %}<p class="note">Your account is <b>{{o.status}}</b>. Listings go live after admin approval.</p>{% endif %}
+<h2>Leads ({{leads|length}})</h2>
+<p class="mut">Contact details are visible here only for enquiries sent to your courses with consent.</p>
+<div class="scroll"><table><tr><th>#</th><th>Course</th><th>Learners</th><th>Contact (consented)</th><th>Status</th></tr>
+{% for l in leads %}<tr><td>{{l.id}}</td><td>{{l.title}}<br><span class="mut">{{l.dates}} · {{l.message}}</span></td><td>{{l.learners}}</td><td>{{l.contact_name}}<br>{{l.contact_email}}<br>{{l.contact_phone}}</td>
+<td><form method="post" action="/provider/lead/{{l.id}}">{{csrf()}}<select name="status" aria-label="Lead status">{% for s in ['new','contacted','quoted','closed'] %}<option {{'selected' if l.status==s}}>{{s}}</option>{% endfor %}</select> <button class="btn sm">Save</button></form>
+</td></tr>{% else %}<tr><td colspan="5">No leads yet.</td></tr>{% endfor %}</table>
+</div>
+<h2>Courses</h2>
+<div class="scroll"><table><tr><th>Title</th><th>Price</th><th>Status</th></tr>{% for c in cs %}<tr><td>{{c.title}}</td><td>{{'Request Quote' if c.price_type=='quote' else 'R%d per %s'|format(c.price,c.price_unit)}}</td><td>{{c.status}}</td></tr>{% endfor %}</table>
+</div>
+<details><summary>Add a course</summary><form method="post" action="/provider/course" class="card">{{csrf()}}<label for="title">Title</label><input id="title" name="title" required><label for="cat">Category</label><select id="cat" name="cat">{% for c in cats %}<option value="{{c.id}}">{{c.name}}</option>{% endfor %}</select>
+<label for="summary">Summary</label><textarea id="summary" name="summary" rows="2"></textarea><label for="outcomes">Programme outcomes</label><textarea id="outcomes" name="outcomes" rows="2"></textarea>
+<div class="grid g3"><div><label for="days">Duration (days)</label><input id="days" name="days" type="number" min="1" required></div>
+<div><label for="mode">Delivery</label><select id="mode" name="mode"><option>onsite</option><option>blended</option><option>online</option></select></div>
+<div><label for="capacity">Capacity</label><input id="capacity" name="capacity" type="number" min="1"></div>
+<div><label for="price_type">Pricing</label><select id="price_type" name="price_type"><option value="fixed">Published price</option><option value="quote">Request Quote (no price shown)</option></select></div>
+<div><label for="price">Price (R)</label><input id="price" name="price" type="number" min="1"></div>
+<div><label for="unit">Price basis</label><select id="unit" name="unit"><option value="learner">per learner</option><option value="cohort">per cohort</option></select></div>
+</div>
+<p><button class="btn">Submit for approval</button></p>
+</form>
+</details>
+<details><summary>Upload accreditation evidence</summary><form method="post" action="/provider/credential" enctype="multipart/form-data" class="card">{{csrf()}}<p class="note">Uploading evidence does not make a claim verified. An admin checks it first.</p>
+<label for="kind">Type</label><select id="kind" name="kind"><option value="provider_accreditation">Provider accreditation</option><option value="programme_accreditation">Programme accreditation</option><option value="institutional_status">Institutional status</option><option value="professional_recognition">Professional recognition</option></select>
+<label for="course_id">Applies to</label><select id="course_id" name="course_id"><option value="">Whole organisation</option>{% for c in cs %}<option value="{{c.id}}">{{c.title}}</option>{% endfor %}</select><label for="authority">Issuing authority</label><input id="authority" name="authority" required><label for="scope">Scope</label><input id="scope" name="scope">
+<div class="grid g2"><div><label for="valid_from">Valid from</label><input id="valid_from" name="valid_from" type="date"></div>
+<div><label for="expires_on">Valid until</label><input id="expires_on" name="expires_on" type="date"></div>
+</div>
+<label for="file">Document (PDF/PNG/JPG, max 5MB)</label><input id="file" name="file" type="file" required><p><button class="btn">Submit evidence</button></p>
+</form>
+</details>
+<h2>Credential records</h2>{% for k in ck %}<p><span class="b {{k.status}}">{{k.status|capitalize}}</span> {{k.kind}}: {{k.authority}}</p>{% endfor %}{% endblock %}

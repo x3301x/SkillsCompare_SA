@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import seals, price, icon %}
+{% block title %}Search results · SkillsCompare SA{% endblock %}
+
+{#- Active filters, collected once so the chips, the count badge and the empty state agree. -#}
+{% set active = [] %}
+{% if a.q %}{% set _ = active.append(('Keyword: ' ~ a.q, 'q')) %}{% endif %}
+{% if a.learners %}{% set _ = active.append((a.learners ~ ' learners', 'learners')) %}{% endif %}
+{% if a.city %}{% set _ = active.append(('City: ' ~ a.city, 'city')) %}{% endif %}
+{% if a.cat %}{% for c in cats %}{% if a.cat == c.id|string %}{% set _ = active.append(('Category: ' ~ c.name, 'cat')) %}{% endif %}{% endfor %}{% endif %}
+{% if f.modes %}{% set _ = active.append(('Format: ' ~ f.modes|map('capitalize')|join(', '), 'mode')) %}{% endif %}
+{% if a.province %}{% set _ = active.append(('Province: ' ~ a.province, 'province')) %}{% endif %}
+{% if a.ptype %}{% set _ = active.append(('Provider: ' ~ a.ptype|ptype, 'ptype')) %}{% endif %}
+{% if a.maxp %}{% set _ = active.append(('Up to R' ~ a.maxp ~ ' per learner', 'maxp')) %}{% endif %}
+{% if a.maxd %}{% set _ = active.append(('Up to ' ~ a.maxd ~ ' days', 'maxd')) %}{% endif %}
+{% if a.cred == 'verified' %}{% set _ = active.append(('Verified by SkillsCompare only', 'cred')) %}{% endif %}
+
+{% block c %}
+<div class="page-head"><p class="eyebrow">Search</p><h1>Search programmes</h1></div>
+
+<div class="rs">
+  <form id="sf" class="rs__form" method="get" action="{{ url_for('search') }}" role="search" aria-label="Search and filters">
+    <input type="hidden" name="sort" value="{{ sort }}">
+    <div class="rs__bar">
+      <div class="rs__q"><label class="vh" for="q">What training do you need?</label>
+        <input id="q" name="q" type="search" value="{{ a.q }}" placeholder="What training do you need? e.g. project management" enterkeyhint="search"></div>
+      <button class="btn" type="submit">Search</button>
+      <button class="btn sec filters-btn" type="button" aria-expanded="false" aria-controls="filters">{{ icon('filter') }}Filters{% set nf = active|rejectattr(1, 'equalto', 'q')|list|length %}{% if nf %} <span class="mono">({{ nf }})</span>{% endif %}</button>
+    </div>
+
+    <div class="scrim" hidden></div>
+    <aside class="filters" id="filters" aria-label="Filters">
+      <div class="filters__head"><h2>Filters</h2><button type="button" class="filters__close btn sec sm">{{ icon('close') }}Close</button></div>
+      <div class="filters__body">
+        <div class="form-grid">
+          <div><label for="learners">Number of learners</label><input id="learners" name="learners" type="number" inputmode="numeric" min="1" value="{{ a.learners }}"></div>
+          <div><label for="city">City</label><select id="city" name="city"><option value="">Any city</option>{% for c in cities %}<option {{ 'selected' if a.city == c }}>{{ c }}</option>{% endfor %}</select></div>
+          <div><label for="cat">Category</label><select id="cat" name="cat"><option value="">All categories</option>{% for c in cats %}<option value="{{ c.id }}" {{ 'selected' if a.cat == c.id|string }}>{{ c.name }}</option>{% endfor %}</select></div>
+        </div>
+        <fieldset><legend>Delivery format</legend><div class="chips">{% for m in ['onsite', 'blended', 'online'] %}<label class="chip"><input type="checkbox" name="mode" value="{{ m }}" {{ 'checked' if m in f.modes }}><span>{{ m|capitalize }}</span></label>{% endfor %}</div></fieldset>
+        <div class="form-grid">
+          <div><label for="province">Province</label><select id="province" name="province"><option value="">Any province</option>{% for p in ['Gauteng', 'Western Cape', 'KwaZulu-Natal'] %}<option {{ 'selected' if a.province == p }}>{{ p }}</option>{% endfor %}</select></div>
+          <div><label for="ptype">Provider type</label><select id="ptype" name="ptype"><option value="">Any type</option>{% for p in ['private', 'qcto', 'university', 'tvet', 'exec-ed'] %}<option value="{{ p }}" {{ 'selected' if a.ptype == p }}>{{ p|ptype }}</option>{% endfor %}</select></div>
+          <div><label for="maxp">Max price per learner (R)<span class="hint">Applies to published prices only. Quote-only programmes stay in the list.</span></label><input id="maxp" name="maxp" type="number" inputmode="numeric" min="0" value="{{ a.maxp }}"></div>
+          <div><label for="maxd">Max duration (days)</label><input id="maxd" name="maxd" type="number" inputmode="numeric" min="1" value="{{ a.maxd }}"></div>
+          <div><label for="cred">Credential status</label><select id="cred" name="cred"><option value="">Any</option><option value="verified" {{ 'selected' if a.cred == 'verified' }}>Verified by SkillsCompare only</option></select></div>
+        </div>
+      </div>
+      <div class="filters__foot"><button class="btn btn--block" type="submit">Apply filters</button><a class="btn sec btn--block" href="{{ url_for('search') }}">Reset all</a></div>
+    </aside>
+  </form>
+
+  <section class="rs__main" aria-labelledby="count">
+    <div class="rs__head">
+      <h2 id="count" aria-live="polite" aria-atomic="true"><span class="mono">{{ res|length }}</span> programme{{ '' if res|length == 1 else 's' }} found</h2>
+      <div class="sortbar">
+        <span class="label-caps" id="sort-l">Sort by</span>
+        <div class="seg" role="group" aria-labelledby="sort-l">
+          <a href="{{ url_for('search') }}?{{ qs(sort='relevance') }}" {% if sort != 'price' %}aria-current="true"{% endif %}>Best match</a>
+          <a href="{{ url_for('search') }}?{{ qs(sort='price') }}" {% if sort == 'price' %}aria-current="true"{% endif %}>Lowest published price</a>
+        </div>
+      </div>
+    </div>
+    <p class="note sortnote">{% if sort == 'price' %}<strong>Sorted by lowest published price.</strong> Request Quote programmes have no confirmed price and are listed last.{% else %}<strong>Best match</strong> follows your search using the rules shown under “Why this match”.{% endif %} Price is not a measure of quality or suitability.</p>
+
+    {% if active %}
+    <ul class="afchips" aria-label="Active filters">
+      {% for label, key in active %}<li><a href="{{ url_for('search') }}?{{ qs(**{key: None}) }}">{{ label }}<span aria-hidden="true"> ×</span><span class="vh"> (remove filter)</span></a></li>{% endfor %}
+      <li><a class="afchips__reset" href="{{ url_for('search') }}">Clear all</a></li>
+    </ul>
+    {% endif %}
+
+    {% if res %}
+    <ol class="register rlist">
+      {% for c in res %}
+      <li class="rc" id="p{{ c.id }}">
+        <div class="rc__main">
+          <p class="rc__ref mono">{{ '%02d'|format(loop.index) }}</p>
+          <h3 class="rc__title"><a href="{{ url_for('course', cid=c.id, learners=n or None) }}">{{ c.title }}</a></h3>
+          <p class="rc__org">{{ c.org }} <span class="rc__type">{{ c.otype|ptype }}</span></p>
+          {{ seals(c.creds) }}
+          <dl class="facts">
+            <div><dt>Duration</dt><dd>{{ c.days }} day{{ '' if c.days == 1 else 's' }}</dd></div>
+            <div><dt>Format</dt><dd>{{ c.mode|capitalize }}</dd></div>
+            <div><dt>Location</dt><dd>{{ c.city }}, {{ c.province }}</dd></div>
+            <div><dt>Capacity</dt><dd>up to {{ c.capacity }}</dd></div>
+          </dl>
+          {% for w in c.flags if w.startswith('Max group') %}<p class="flag">{{ w }}</p>{% endfor %}
+          {% if sort != 'price' %}
+          <details class="why-d"><summary>Why this match <span class="mono">· score {{ c.score }}</span></summary>
+            <ul class="why">{% for w in c.why %}<li>{{ w }}</li>{% endfor %}{% for w in c.flags if not w.startswith('Max group') %}<li class="why__flag">{{ w }}</li>{% endfor %}</ul>
+            <p class="mut">Rule-based and explainable: every point comes from a listed rule. Sponsored placement does not exist in this prototype.</p>
+          </details>
+          {% endif %}
+        </div>
+        <div class="rc__side">
+          {{ price(c) }}
+          <div class="rc__actions">
+            {% if c.id in cmp_ids %}
+              <a class="btn sec sm" href="{{ url_for('compare') }}?{{ ('learners=' ~ n) if n }}">In comparison · view</a>
+            {% elif cmp_ids|length >= 3 %}
+              <button class="btn sec sm" type="button" disabled>Comparison full (3 of 3)</button>
+            {% else %}
+              <form method="post" action="{{ url_for('cmp_add', cid=c.id) }}">{{ csrf() }}<button class="btn sec sm" type="submit">Add to compare</button></form>
+            {% endif %}
+            <a class="btn sm" href="{{ url_for('enquire', cid=c.id) }}">Enquire</a>
+          </div>
+        </div>
+      </li>
+      {% endfor %}
+    </ol>
+    {% else %}
+    <div class="empty">
+      <p class="eyebrow">No match</p>
+      <h3>No programmes match every filter</h3>
+      <p>Filters are combined, so each one narrows the list. Try one of these:</p>
+      <ul>
+        {% for label, key in active %}<li><a href="{{ url_for('search') }}?{{ qs(**{key: None}) }}">Remove “{{ label }}”</a></li>{% endfor %}
+        <li><a href="{{ url_for('search') }}">Start again with no filters</a></li>
+      </ul>
+      <p class="mut">Online programmes are shown in any region. Programmes outside your city or province are hidden unless they are online.</p>
+    </div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

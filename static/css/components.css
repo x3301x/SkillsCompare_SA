@@ -1,0 +1,99 @@
+/* SkillsCompare SA: components. Seal/badge system, header, footer, price, ruled lists. */
+
+/* ---- Prototype strip + header ---- */
+.proto-strip{background:var(--ink);color:var(--paper);font:500 var(--t-2xs)/1.4 var(--font-mono);letter-spacing:var(--tracking-label);text-transform:uppercase;padding:var(--s-2) 0}
+.proto-strip .wrap{display:flex;gap:var(--s-2) var(--s-4);flex-wrap:wrap;justify-content:space-between}
+.site-header{background:var(--paper);border-bottom:var(--rule-w) solid var(--rule);position:relative;z-index:20}
+.site-header .wrap{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);min-height:4rem}
+.brand{display:inline-flex;align-items:center;gap:var(--s-3);text-decoration:none;color:var(--ink);min-height:var(--tap)}
+.brand:hover{color:var(--ink)}
+.brand__mark{width:2rem;height:2rem;flex:none}
+.brand__word{font:600 1.375rem/1 var(--font-display);letter-spacing:-.02em}
+.brand__sa{font:500 .6875rem/1 var(--font-mono);letter-spacing:.06em;border:1.5px solid var(--ink);padding:.18rem .3rem;margin-left:.15rem;vertical-align:.4em;border-radius:var(--r)}
+.nav-toggle{display:none;align-items:center;gap:var(--s-2);min-height:var(--tap);padding:0 var(--s-3);font:600 var(--t-sm) var(--font-text);background:var(--white);color:var(--ink);border:var(--bw) solid var(--ink);border-radius:var(--r);cursor:pointer}
+.nav-toggle svg{width:1.25rem;height:1.25rem}
+.js .nav-toggle{display:inline-flex}
+.site-nav{width:100%;order:3}
+.js .site-nav[hidden]{display:none}
+.site-nav ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.site-nav li{border-top:1px solid var(--rule-soft)}
+.site-nav a,.site-nav button{display:flex;align-items:center;min-height:var(--tap);width:100%;padding:0 var(--s-1);font:500 var(--t-base) var(--font-text);color:var(--ink);background:none;border:0;text-decoration:none;cursor:pointer;text-align:left}
+.site-nav a:hover,.site-nav button:hover{color:var(--signal-ink)}
+.site-nav a[aria-current=page]{font-weight:600;box-shadow:inset 0 -3px 0 var(--signal)}
+.site-nav .count{font-family:var(--font-mono);font-size:var(--t-xs);margin-left:var(--s-2);background:var(--ink);color:var(--paper);padding:0 .45rem;border-radius:var(--r);min-width:1.4rem;text-align:center}
+.site-nav .nav-cta{font-weight:600}
+.site-nav form{margin:0}
+@media(min-width:56em){
+  .site-header .wrap{flex-wrap:nowrap}
+  .js .nav-toggle,.nav-toggle{display:none}
+  .js .site-nav[hidden]{display:block}
+  .site-nav{width:auto;order:0}
+  .site-nav ul{flex-direction:row;align-items:center;gap:var(--s-1)}
+  .site-nav li{border:0}
+  .site-nav a,.site-nav button{padding:0 var(--s-3);width:auto;white-space:nowrap}
+  .site-nav a[aria-current=page]{box-shadow:inset 0 -3px 0 var(--signal)}
+  .site-nav .nav-cta{border:var(--bw) solid var(--ink);border-radius:var(--r);background:var(--white);margin-left:var(--s-2)}
+}
+
+/* ---- Seal: the credential mark. A register stamp = icon cell + two lines.
+   State is carried by SHAPE (solid / dashed / hatched / open) + icon + words, not colour alone. ---- */
+.seal{display:inline-grid;grid-template-columns:auto 1fr;align-items:stretch;border:var(--bw) solid var(--ink);border-radius:var(--r);background:var(--white);max-width:100%;text-align:left;vertical-align:top;margin:0 var(--s-2) var(--s-2) 0}
+.seal__icon{display:grid;place-items:center;width:2.25rem;border-right:var(--bw) solid currentColor}
+.seal__icon svg{width:1.25rem;height:1.25rem}
+.seal__text{display:grid;padding:.2rem var(--s-3) .25rem var(--s-2);min-width:0}
+.seal__state{font:600 var(--t-sm)/1.25 var(--font-text)}
+.seal__kind{font:500 var(--t-2xs)/1.3 var(--font-mono);letter-spacing:var(--tracking-label);text-transform:uppercase}
+.seal--verified{color:var(--verified);border:2px solid var(--verified);box-shadow:inset 0 0 0 2px var(--white),inset 0 0 0 3px var(--verified);background:var(--verified-tint)}
+.seal--verified .seal__icon{background:var(--verified);color:var(--white);border-right-color:var(--verified)}
+.seal--pending{color:var(--review);border:2px dashed var(--review);background:var(--review-tint)}
+.seal--unverified{color:var(--unverified);border:2px dashed var(--unverified);background:repeating-linear-gradient(135deg,var(--unverified-tint) 0 6px,var(--paper) 6px 12px)}
+.seal--unverified .seal__text{background:var(--paper);margin:2px 2px 2px 0}
+.seal--none{color:var(--none);border:1.5px dotted var(--none);background:transparent}
+.seal--none .seal__icon{border-right-style:dotted}
+.seal--lg .seal__icon{width:2.75rem}.seal--lg .seal__icon svg{width:1.5rem;height:1.5rem}.seal--lg .seal__state{font-size:var(--t-base)}
+.seals{display:flex;flex-wrap:wrap}
+
+/* Generic status chip for dashboards (lead status, listing status) */
+.b{display:inline-block;padding:.1rem .5rem;font:500 var(--t-xs)/1.5 var(--font-mono);letter-spacing:.04em;text-transform:uppercase;border:1.5px solid var(--ink);border-radius:var(--r);background:var(--white);margin:0 var(--s-1) var(--s-1) 0}
+.b.verified,.b.approved,.b.listed{color:var(--verified);border-color:var(--verified);background:var(--verified-tint)}
+.b.pending,.b.new{color:var(--review);border:1.5px dashed var(--review);background:var(--review-tint)}
+.b.unverified,.b.rejected,.b.hidden{color:var(--unverified);border:1.5px dashed var(--unverified);background:var(--unverified-tint)}
+.b.none{color:var(--none);border:1.5px dotted var(--none);background:transparent}
+
+/* ---- Price: mono figures. Request Quote is a distinct, un-priced state ---- */
+.price{display:block}
+.price__fig{font:500 var(--t-lg)/1.1 var(--font-mono);font-feature-settings:"tnum" 1;letter-spacing:-.02em}
+.price__fig small{font:500 var(--t-xs) var(--font-mono);letter-spacing:0;color:var(--ink-2)}
+.price--quote .price__fig{font:600 var(--t-md)/1.2 var(--font-text);letter-spacing:0;border-bottom:2px dashed var(--ink);display:inline-block;padding-bottom:1px}
+.price__basis{display:block;font-size:var(--t-xs);color:var(--ink-3);margin-top:var(--s-1);max-width:34ch}
+.quote{color:var(--ink)}
+
+/* ---- Ruled list ("register entries") ---- */
+.register{list-style:none;margin:0;padding:0;border-top:var(--rule-w) solid var(--rule)}
+.register>li{border-bottom:1px solid var(--rule)}
+
+/* ---- Eyebrow / section head ---- */
+.eyebrow{font:500 var(--t-2xs)/1.3 var(--font-mono);letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--ink-3);margin:0 0 var(--s-3);max-width:none}
+.eyebrow--signal{color:var(--signal-ink)}
+.section{padding-block:var(--s-7)}
+.section--tight{padding-block:var(--s-6)}
+.section-head{margin-bottom:var(--s-5);max-width:46rem}
+.section-head h2{font-size:var(--t-xl);margin-bottom:var(--s-3)}
+.band-dark{background:var(--ink);color:var(--paper)}
+.band-dark a{color:var(--paper)}
+.band-dark .eyebrow{color:#B9C0C2}
+.band-sunken{background:var(--paper-2);border-block:1px solid var(--rule-soft)}
+
+/* ---- Footer ---- */
+.site-footer{background:var(--paper);border-top:var(--rule-w) solid var(--rule);margin-top:var(--s-8);padding-top:var(--s-6)}
+.footer-grid{display:grid;gap:var(--s-6);grid-template-columns:1fr}
+.site-footer h2{font:500 var(--t-2xs)/1.3 var(--font-mono);letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--ink-3);margin-bottom:var(--s-2)}
+.site-footer ul{list-style:none;margin:0;padding:0}
+.site-footer li a{display:inline-flex;align-items:center;min-height:var(--tap)}
+.disclaimer{font-size:var(--t-sm);color:var(--ink-2);max-width:46ch}
+.footer-base{border-top:1px solid var(--rule-soft);margin-top:var(--s-6);padding:var(--s-4) 0 var(--s-6);font:400 var(--t-xs)/1.5 var(--font-mono);color:var(--ink-3)}
+@media(min-width:48em){.footer-grid{grid-template-columns:1.6fr 1fr 1fr}}
+
+/* ---- Main flash region ---- */
+.page-flashes{padding-top:var(--s-4)}
+.page-flashes:empty{display:none}

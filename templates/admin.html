@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import badges, seals, price, seal %}
+{% block c %}
+<h1>Admin</h1>
+<h2>Funnel (anonymised)</h2>
+<div class="grid g4"><div class="card"><div class="stat">{{ev.search}}</div>Searches</div>
+<div class="card"><div class="stat">{{ev.compare}}</div>Comparisons</div>
+<div class="card"><div class="stat">{{enq}}</div>Enquiries</div>
+<div class="card"><div class="stat">{{ (100*resp/enq)|round|int if enq else 0 }}%</div>Response rate</div>
+</div>
+<p class="mut">No employer names or contact details appear in reports or exports. <a href="/admin/export.csv">Export CSV</a></p>
+<div class="scroll"><table><tr><th>Category</th><th>Searches</th><th>Comparisons</th></tr>{% for r in bycat %}<tr><td>{{r.name}}</td><td>{{r.s or 0}}</td><td>{{r.c or 0}}</td></tr>{% endfor %}</table>
+</div>
+<h3>Provider activity</h3>
+<div class="scroll"><table><tr><th>Provider</th><th>Live courses</th><th>Leads</th><th>Responded</th></tr>{% for r in act %}<tr><td>{{r.name}}</td><td>{{r.listed}}</td><td>{{r.leads}}</td><td>{{r.responded or 0}}</td></tr>{% endfor %}</table>
+</div>
+<h2>Pending providers</h2>{% for o in porgs %}<form method="post" action="/admin/org/{{o.id}}" class="card">{{csrf()}}<b>{{o.name}}</b> ({{o.type}}, {{o.city}}) <button name="do" value="approve" class="btn sm">Approve</button> <button name="do" value="reject" class="btn sec sm">Reject</button></form>{% else %}<p class="mut">None.</p>{% endfor %}
+<h2>Listings awaiting moderation</h2>{% for c in pc %}<form method="post" action="/admin/course/{{c.id}}" class="card">{{csrf()}}<b>{{c.title}}</b> · {{c.org}} · {{c.status}} <button name="do" value="approve" class="btn sm">Approve</button></form>{% else %}<p class="mut">None.</p>{% endfor %}
+<details><summary>Moderate live listings</summary>{% for c in lc %}<form method="post" action="/admin/course/{{c.id}}">{{csrf()}}{{c.title}} <button name="do" value="hide" class="btn sec sm">Hide</button></form>{% endfor %}</details>
+<h2>Credential review</h2>
+<p class="note">Verified requires issuing authority, method and date checked. Every change is audited.</p>{% for k in ck %}<form method="post" action="/admin/credential/{{k.id}}" class="card">{{csrf()}}<b>{{k.org}}</b> · {{k.kind}} · now <span class="b {{k.status}}">{{k.status}}</span>{% if k.evidence %} · <a href="/evidence/{{k.id}}">evidence</a>{% endif %}
+<div class="grid g3"><div><label>Authority<input name="authority" value="{{k.authority}}"></label></div>
+<div><label>Scope<input name="scope" value="{{k.scope or ''}}"></label></div>
+<div><label>Method<input name="method" value="{{k.method or ''}}" placeholder="e.g. register lookup"></label></div>
+<div><label>Date checked<input name="checked_on" type="date" value="{{k.checked_on or ''}}"></label></div>
+<div><label>Expiry<input name="expires_on" type="date" value="{{k.expires_on or ''}}"></label></div>
+<div><label>Set status<select name="status">{% for s in ['verified','pending','unverified'] %}<option {{'selected' if k.status==s}}>{{s}}</option>{% endfor %}</select></label></div>
+</div>
+<button class="btn sm">Record</button></form>{% endfor %}
+<h2>Categories</h2>
+<p>{% for c in cats %}<span class="b none">{{c.name}}</span>{% endfor %}</p>
+<form method="post" action="/admin/category">{{csrf()}}<label for="cn">New category</label><input id="cn" name="name" style="max-width:320px"> <button class="btn sm">Add</button></form>
+<h2>Audit trail</h2>
+<div class="scroll"><table><tr><th>When</th><th>Actor</th><th>Action</th><th>Target</th><th>Detail</th></tr>{% for a in aud %}<tr><td>{{a.at}}</td><td>{{a.actor}}</td><td>{{a.action}}</td><td>{{a.target}}</td><td>{{a.detail}}</td></tr>{% endfor %}</table>
+</div>
+<h2>Email outbox (stub)</h2>{% for m in mails %}<p class="mut">{{m.at}} → {{m.to_email|mask}}: <b>{{m.subject}}</b></p>{% endfor %}{% endblock %}
