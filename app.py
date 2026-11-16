@@ -320,7 +320,36 @@ app.jinja_env.filters['mask'] = lambda e: (e.split('@')[0][:1] + '***@' + e.spli
 PTYPE = {'private': 'Private provider', 'qcto': 'Occupational skills provider', 'university': 'University', 'tvet': 'TVET college', 'exec-ed': 'Executive education'}
 app.jinja_env.filters['ptype'] = lambda t: PTYPE.get(t, t)
 
-if __name__ == '__main__':
-    if not os.path.exists(DB): seed_db(DB, CONSENT)
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
+# Initialise database when the application is imported by Gunicorn or run locally.
+def ensure_database():
+    with sqlite3.connect(DB) as con:
+        tables = {
+            row[0] for row in con.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'"
+            )
+        }
 
+    required_tables = {
+        'orgs', 'users', 'categories', 'courses', 'credentials',
+        'enquiries', 'notifications', 'subscriptions', 'events', 'audit'
+    }
+
+    if not tables:
+        print("Empty database detected. Creating schema and demo data...")
+        seed_db(DB, CONSENT)
+    elif not required_tables.issubset(tables):
+        missing = required_tables - tables
+        raise RuntimeError(f"Database is missing tables: {missing}")
+
+    print("Database initialisation complete.")
+
+
+ensure_database()
+
+
+if __name__ == '__main__':
+    app.run(
+        host='0.0.0.0',
+        port=int(os.environ.get('PORT', 5000)),
+        debug=False
+    )
